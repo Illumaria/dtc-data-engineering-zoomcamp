@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres_db
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  data-ingestion:
+    build: images/data-ingestion
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+volumes:
+  postgres-db-volume:
